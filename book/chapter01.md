@@ -12,7 +12,9 @@ In order for us to work with source code we need to turn it into a more accessib
 
 So, what we need to do is represent our source code in other forms that **are** easier to work with. We’re going to change the representation of our source code two times before we evaluate it:
 
-TODO diagram
+```
+Source Code -> Tokens -> Abstract Syntax Tree
+```
 
 The first transformation, from source code to tokens, is called “lexical analysis”, or “lexing” for short. It’s done by a lexer (also called tokenizer or scanner – some use one word or the other to denote subtle differences in behaviour, which we can ignore in this book).
 
