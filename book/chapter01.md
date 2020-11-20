@@ -1,12 +1,10 @@
 ![cover](https://interpreterbook.com/img/cover-cb2da3d1.png)
 
-Writing An Interpreter In Go
+# Writing An Interpreter In Go, by Thorsten Ball
 
-Thorsten Ball
+## Chapter 1: Lexing
 
-# Chapter 1: Lexing
-
-## 1.1 Lexical analysis
+### 1.1 Lexical analysis
 
 In order for us to work with source code we need to turn it into a more accessible form. As easy as plain text is to work with in our editor, it becomes cumbersome pretty fast when trying to interpret it in a programming language as another programming language.
 
@@ -64,7 +62,7 @@ A production-ready lexer might also attach the line number, column number and fi
 
 We’re not going to bother with that. Not because it’s too complex, but because it would take away from the essential simpleness of the tokens and the lexer, making it harder to understand.
 
-## 1.2 Defining our tokens
+### 1.2 Defining our tokens
 
 The first thing we have to do is to define the tokens our lexer is going to output. We’re going to start with just a few token definitions and then add more when extending the lexer.
 
@@ -101,7 +99,7 @@ As you can see there are two special types: `ILLEGAL` and `EOF`. We didn’t see
 
 So far so good! We are ready to start writing our lexer.
 
-## 1.3 The lexer
+### 1.3 The lexer
 
 Before we start to write code, let’s be clear about the goal of this section. We’re going to write our own lexer. It will take source code as input and output the tokens that represent the source code. It will go through its input and output the next token it recognizes. It doesn’t need to buffer or save tokens, since there will only be one method called `NextToken()`, which will output the next token.
 
