@@ -87,13 +87,17 @@ Let’s define our `Token` data structure. Which fields does it need? As we just
 
 In a new token package we define our `Token` struct and our `TokenType` type:
 
-> See commit: Add TokenType
+```commit
+Add TokenType
+```
 
 We defined the `TokenType` type to be a `string`. That allows us to use many different values as `TokenType`s, which in turn allows us to distinguish between different types of tokens. Using `string` also has the advantage of being easy to debug without a lot of boilerplate and helper functions: we can just print a `string`. Of course, using a `string` might not lead to the same performance as using an `int` or a `byte` would, but for this book a `string` is perfect.
 
 As we just saw, there is a limited number of different token types in the Monkey language. That means we can define the possible `TokenType`s as constants. In the same file we add this:
 
-> See commit: Add token constants
+```commit
+Add token constants
+```
 
 As you can see there are two special types: `ILLEGAL` and `EOF`. We didn’t see them in the example above, but we’ll need them. `ILLEGAL` signifies a token/character we don’t know about and `EOF` stands for “end of file”, which tells our parser later on that it can stop.
 
@@ -107,7 +111,9 @@ That means, we’ll initialize the lexer with our source code and then repeatedl
 
 Having thought this through, we now realize that what our lexer needs to do is pretty clear. So let’s create a new package and add a first test that we can continuously run to get feedback about the working state of the lexer. We’re starting small here and will extend the test case as we add more capabilities to the lexer:
 
-> See commit: Add lexer test
+```commit
+Add lexer test
+```
 
 Of course, the tests fail – we haven’t written any code yet:
 
@@ -120,13 +126,17 @@ FAIL    monkey/lexer [build failed]
 
 So let’s start by defining the `New()` function that returns `*Lexer`.
 
-> See commit: Create New() for lexer
+```commit
+Create New() for lexer
+```
 
 Most of the fields in `Lexer` are pretty self-explanatory. The ones that might cause some confusion right now are position and `readPosition`. Both will be used to access characters in input by using them as an index, e.g.: `l.input[l.readPosition]`. The reason for these two “pointers” pointing into our input string is the fact that we will need to be able to “peek” further into the input and look after the current character to see what comes up next. `readPosition` always points to the “next” character in the input. `position` points to the character in the input that corresponds to the `ch` byte.
 
 A first helper method called `readChar()` should make the usage of these fields easier to understand:
 
-> See commit: Add readChar()
+```commit
+Add readChar()
+```
 
 The purpose of readChar is to give us the next character and advance our position in the `input` string. The first thing it does is to check whether we have reached the end of `input`. If that’s the case it sets `l.ch` to `0`, which is the ASCII code for the `"NUL"` character and signifies either “we haven’t read anything yet” or “end of file” for us. But if we haven’t reached the end of input yet it sets `l.ch` to the next character by accessing `l.input[l.readPosition]`.
 
@@ -136,11 +146,15 @@ While talking about `readChar` it’s worth pointing out that the lexer only sup
 
 Let’s use `readChar` in our `New()` function so our *Lexer is in a fully working state before anyone calls `NextToken()`, with `l.ch`, `l.position` and `l.readPosition` already initialized:
 
-> See commit: Use readChar() in New()
+```commit
+Use readChar() in New()
+```
 
 Our tests now tell us that calling `New(input)` doesn’t result in problems anymore, but the `NextToken()` method is still missing. Let’s fix that by adding a first version:
 
-> See commit: Add NextToken()
+```commit
+Add NextToken()
+```
 
 That’s the basic structure of the `NextToken()` method. We look at the current character under examination (`l.ch`) and return a token depending on which character it is. Before returning the token we advance our pointers into the input so when we call `NextToken()` again the `l.ch` field is already updated. A small function called `newToken` helps us with initializing these tokens.
 
@@ -153,13 +167,17 @@ ok      monkey/lexer 0.007s
 
 Great! Let’s now extend the test case so it starts to resemble Monkey source code.
 
-> See commit: Expand `TestNextToken`
+```commit
+Expand `TestNextToken`
+```
 
 Most notably the input in this test case has changed. It looks like a subset of the Monkey language. It contains all the symbols we already successfully turned into tokens, but also new things that are now causing our tests to fail: identifiers, keywords and numbers.
 
 Let’s start with the identifiers and keywords. What our lexer needs to do is recognize whether the current character is a letter and if so, it needs to read the rest of the identifier/keyword until it encounters a non-letter-character. Having read that identifier/keyword, we then need to find out if it is a identifier or a keyword, so we can use the correct `token.TokenType`. The first step is extending our switch statement:
 
-> See commit: Extend NextToken() switch with default
+```commit
+Extend NextToken() switch with default
+```
 
 We added a `default` branch to our switch statement, so we can check for identifiers whenever the `l.ch` is not one of the recognized characters. We also added the generation of `token.ILLEGAL` tokens. If we end up there, we truly don’t know how to handle the current character and declare it as `token.ILLEGAL`.
 
@@ -169,13 +187,17 @@ The `isLetter` helper function just checks whether the given argument is a lette
 
 In the `default:` branch of the switch statement we use `readIdentifier()` to set the Literal field of our current token. But what about its `Type`? Now that we have read identifiers like `let`, `fn` or `foobar`, we need to be able to tell user-defined identifiers apart from language keywords. We need a function that returns the correct `TokenType` for the token literal we have. What better place than the `token` package to add such a function?
 
-> See commit: Add LookupIdent()
+```commit
+Add LookupIdent()
+```
 
 `LookupIdent` checks the keywords table to see whether the given identifier is in fact a keyword. If it is, it returns the keyword’s `TokenType` constant. If it isn’t, we just get back `token.IDENT`, which is the `TokenType` for all user-defined identifiers.
 
 With this in hand we can now complete the lexing of identifiers and keywords:
 
-> See commit: Set tok.Type
+```commit
+Set tok.Type
+```
 
 The early exit here, our return `tok` statement, is necessary because when calling
 `readIdentifier()`, we call `readChar()` repeatedly and advance our `readPosition` and position fields past the last character of the current identifier. So we don’t need the call to `readChar()` after the switch statement again.
@@ -192,7 +214,9 @@ FAIL       monkey/lexer 0.008s
 
 The problem is the next token we want: a `IDENT` token with `"five"` in its `Literal` field. Instead we get an `ILLEGAL` token. Why is that? Because of the whitespace character between “let” and “five”. But in Monkey whitespace only acts as a separator of tokens and doesn’t have meaning, so we need to skip over it entirely:
 
-> See commit: Skip whitespace
+```commit
+Skip whitespace
+```
 
 This little helper function is found in a lot of parsers. Sometimes it’s called `eatWhitespace` and sometimes `consumeWhitespace` and sometimes something entirely different. Which characters these functions actually skip depends on the language being lexed. Some language implementations do create tokens for newline characters for example and throw parsing errors if they are not at the correct place in the stream of tokens. We skip over newline characters to make the parsing step later on a little easier.
 
@@ -201,7 +225,9 @@ With `skipWhitespace()` in place, the lexer trips over the `5` in the `let five 
 
 As we did previously for identifiers, we now need to add more functionality to the `default` branch of our switch statement.
 
-> See commit: Lex numbers
+```commit
+Lex numbers
+```
 
 As you can see, the added code closely mirrors the part concerned with reading identifiers and keywords. The `readNumber` method is exactly the same as `readIdentifier` except for its usage of `isDigit` instead of `isLetter`. We could probably generalize this by passing in the characteridentifying functions as arguments, but won’t, for simplicity’s sake and ease of understanding.
 
