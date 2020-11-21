@@ -168,7 +168,7 @@ ok      monkey/lexer 0.007s
 Great! Let’s now extend the test case so it starts to resemble Monkey source code.
 
 ```commit
-Expand `TestNextToken`
+Expand TestNextToken
 ```
 
 Most notably the input in this test case has changed. It looks like a subset of the Monkey language. It contains all the symbols we already successfully turned into tokens, but also new things that are now causing our tests to fail: identifiers, keywords and numbers.
